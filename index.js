@@ -1,6 +1,12 @@
 const express=require('express')
 const  app=express()
+const morgan=require('morgan')
 app.use(express.json())
+
+morgan.token('content',function(req,res){ return JSON.stringify(req.body)})
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :content'))
+
 
 let persons=[
   { 
@@ -67,15 +73,12 @@ app.post('/api/persons', (req,res)=>{
 
   const result=persons.find(person=>person.name.toLowerCase().includes(name.toLowerCase()))
   if(result){
-    return res.status(400).json({msg:"Name already exists"})
+    return res.status(400).json({ msg:"Name must be unique" })
   }
   const createdPerson={name,number,id:createId()}
   persons=persons.concat(createdPerson)
   res.json(createdPerson)
 })
-
-
-
 
 
 const PORT=3001
