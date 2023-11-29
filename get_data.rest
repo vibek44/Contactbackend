@@ -1,15 +1,29 @@
 
-
-GET http://localhost:3001/api/notes/
+GET http://localhost:3001/api/persons/
 
 ###
-POST http://localhost:3001/api/persons/ HTTP/1.1
+GET https://contactbackend.fly.dev/api/persons/
+
+
+###
+POST http://localhost:3001/api/persons HTTP/1.1
 content-type: application/json
 
 {
-    "name": " Arionpoi",
+    "name": " Arionpoiwe",
     "number": "465256765"
 }
+
+###
+POST https://contactbackend.fly.dev/api/persons HTTP/1.1
+content-type: application/json
+
+{
+    "name": " Arionpoiwe",
+    "number": "465256765"
+}
+
+
 
 
 ###
