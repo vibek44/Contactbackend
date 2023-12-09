@@ -1,77 +1,66 @@
 const express=require('express')
-
 const router=express.Router()
+const Contact=require('../model/contact')
+const mongoose=require('mongoose')
 
-let persons=[
-  { 
-    "id": 1,
-    "name": "Arto Hellas", 
-    "number": "040-123456"
-  },
-  { 
-    "id": 2,
-    "name": "Ada Lovelace", 
-    "number": "39-44-5323523"
-  },
-  { 
-    "id": 3,
-    "name": "Dan Abramov", 
-    "number": "12-43-234345"
-  },
-  { 
-    "id": 4,
-    "name": "Mary Poppendieck", 
-    "number": "39-23-6423122"
-  }
-]
 
 router.get('/info',(req,res)=>{
-  res.send(`<div><p>phonebook has info for ${persons.length} people</p>
-    <p>${new Date()}<p/><div/>`
-  )
+  Contact.find({})
+         .then(result=>{
+           res.send(`<div><p>phonebook has info for the ${result.length} people</p>
+                     <p>${new Date()}<p/><div/>`)
+          }) 
 })
 
-
-router.get('/api/persons' ,(req,res)=>{
-  res.json(persons)
+router.get('/api/persons', (req,res)=>{
+  Contact.find({})
+         .then(result=>res.json(result))  
 })
 
-router.get('/api/persons/:id',(req,res)=>{
-  const id=Number( req.params.id);
-  const person=persons.find(person=>person.id===id)
-  if(person){
-    res.json(person)
-  }else{
-    res.status(404).end()
-  }
-  
+router.get('/api/persons/:id', (req,res,next)=>{
+  Contact.findById(req.params.id)
+         .then(result=>{ 
+            if(result){
+              res.send(result)
+            }else{
+              res.status(404).end()
+            }  
+          })
+          .catch(err=>next(err))  
 }) 
 
 router.delete('/api/persons/:id',(req,res)=>{
-  const id=Number(req.params.id)
-   persons=persons.filter(person=>person.id!==id)
-   res.status(204).end()
-
+  Contact.findByIdAndDelete(req.params.id)
+          .then(result=>{         
+            res.status(204).end()
+           })
 })
 
-router.post('/api/persons', (req,res)=>{
-  //console.log(req.body);
-  const createId=()=>{
-    return Math.floor(Math.random()*800)
-  }
-  
+router.post('/api/persons', (req,res,next)=>{
   const {name,number}=req.body;
-  if(!(name.trim()&&number.trim())){
+
+  if(!(name&&number)){
      return res.status(400).json({err:"name or number is missing"})
   }
+  const contact=new Contact({name,number})
 
-  const result=persons.find(person=>person.name.toLowerCase().includes(name.toLowerCase()))
-  if(result){
-    return res.status(400).json({ msg:"Name must be unique" })
-  }
-  const createdPerson={name,number,id:createId()}
-  persons=persons.concat(createdPerson)
-  res.json(createdPerson)
+  contact.save()
+         .then(savedContact=>{
+            res.json(savedContact)
+          })
+          .catch(err=>next(err))
 })
+
+router.put('/api/persons/:id',(req,res,next)=>{
+  const {name,number}=req.body
+  const person={name,number}
+  Contact.findByIdAndUpdate(
+    req.params.id,
+    person,
+    { new:true, runValidators:true, context:'query'})
+    .then((updatedPerson)=>res.json(updatedPerson))
+    .catch(err=>next(err))
+})
+
 
 module.exports=router
