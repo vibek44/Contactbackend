@@ -36,7 +36,8 @@ module.exports = {
     ],
     'eqeqeq':'error',
     'object-curly-spacing':['error','always'],
-    'arrow-spacing':[ 'error', { 'before':true,'after':true }]
+    'arrow-spacing':[ 'error', { 'before':true,'after':true }],
+    'no-console':0
 
   }
 }
